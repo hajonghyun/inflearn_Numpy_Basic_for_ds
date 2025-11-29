@@ -59,3 +59,51 @@ np.random.randint(0, 10, (5, 5)) # 0 이상 10 미만
 # 4. 시드 고정 (재현성 확보)
 np.random.seed(42)
 ```
+
+## 2. N차원 배열 인덱싱 (Array Indexing)
+
+데이터의 특정 부분을 선택(Selection), 필터링(Filtering), 재배열(Shuffling)하는 다양한 인덱싱 기법 정리.
+
+### 1️⃣ 기본 인덱싱 & 슬라이싱 (Basic & Slicing)
+리스트와 달리 `[행, 열]` 표기법을 지원하며, 이를 통해 **열(Column)** 단위 추출이 가능함.
+
+```python
+import numpy as np
+arr = np.array([[1, 2, 3], [4, 5, 6]])
+
+# 1. 요소 접근 (행, 열)
+print(arr[0, 1])   # 2 (0행 1열) -> arr[0][1]보다 권장됨
+
+# 2. 슬라이싱 (Slicing)
+print(arr[0, :])   # [1, 2, 3] (0행 전체)
+print(arr[:, 1])   # [2, 5]    (모든 행의 1열 -> 열 추출 ⭐)
+print(arr[:2, 1:]) # 0~1행, 1열~끝열 부분 추출
+```
+
+### 2️⃣ 팬시 인덱싱 (Fancy Indexing)
+인덱스로 **리스트(List)**를 전달하여, 특정 순서대로 데이터를 추출하거나 섞을 때 사용.
+
+```python
+matrix = np.array([[10, 10], [20, 20], [30, 30]])
+
+# 1. 원하는 행만 콕 집어 가져오기
+print(matrix[[0, 2]]) 
+# 결과: [[10, 10], [30, 30]] (0번, 2번 행 추출)
+
+# 2. 순서 섞기 (Shuffling)
+print(matrix[[2, 1, 0]]) 
+# 결과: 2번 -> 1번 -> 0번 행 순서로 재배열
+```
+
+### 3️⃣ 불리언 인덱싱 (Boolean Indexing) - ⭐데이터 필터링 필수
+조건문(True/False)을 인덱스로 사용하여, 조건에 맞는 데이터만 추출.
+
+```python
+data = np.array([1, 2, 3, 4, 5])
+
+# 1. 짝수만 추출 (Filtering)
+evens = data[data % 2 == 0] # [2, 4]
+
+# 2. 특정 기준 이상인 값만 살리기
+high_val = data[data > 3]   # [4, 5]
+```
