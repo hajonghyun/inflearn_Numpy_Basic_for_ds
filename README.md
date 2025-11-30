@@ -1,5 +1,7 @@
 # Numpy 공부 내용 summary
 
+---
+
 ## 1. N차원 배열 생성 (Array Creation)
 
 리스트보다 빠르고 효율적인 `ndarray` 생성법과, 딥러닝 데이터 생성에 필수적인 난수(Random) 활용법 정리.
@@ -60,6 +62,8 @@ np.random.randint(0, 10, (5, 5)) # 0 이상 10 미만
 np.random.seed(42)
 ```
 
+---
+
 ## 2. N차원 배열 인덱싱 (Array Indexing)
 
 데이터의 특정 부분을 선택(Selection), 필터링(Filtering), 재배열(Shuffling)하는 다양한 인덱싱 기법 정리.
@@ -107,3 +111,89 @@ evens = data[data % 2 == 0] # [2, 4]
 # 2. 특정 기준 이상인 값만 살리기
 high_val = data[data > 3]   # [4, 5]
 ```
+
+---
+
+## 3. N차원 배열 연산 (Array Operations)
+
+반복문 없이 데이터 전체를 한 번에 계산하는 **벡터 연산(Vectorization)**과, 딥러닝 레이어 연산의 핵심인 **브로드캐스팅 & 행렬 곱** 정복.
+
+### 1️⃣ 요소별 연산 vs 행렬 곱 (Element-wise vs Dot Product)
+가장 많이 하는 실수! `*`는 행렬 곱이 아닙니다.
+
+```python
+import numpy as np
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[1, 0], [0, 1]])
+
+# 1. 요소별 연산 (Element-wise)
+# 같은 위치끼리만 곱함. 크기(Shape)가 같거나 브로드캐스팅 가능해야 함.
+print(A * B) 
+
+# 2. 행렬 곱 (Matrix Multiplication) - ⭐딥러닝 필수
+# 앞 행렬의 열과 뒤 행렬의 행 개수가 같아야 함. ((N, M) @ (M, K) -> (N, K))
+print(A @ B)      # Python 3.5+ 권장 문법
+print(np.dot(A, B)) # 같은 기능
+```
+
+### 2️⃣ 브로드캐스팅 (Broadcasting)
+크기(Shape)가 다른 배열끼리 연산할 때, **작은 쪽을 자동으로 확장(Stretch)**해주는 기능.
+* **규칙:** 뒤에서부터 차원을 비교했을 때, 축의 크기가 **같거나 1이어야** 함.
+
+```python
+data = np.array([[1, 2, 3], [4, 5, 6]]) # (2, 3)
+bias = np.array([10, 20, 30])           # (3,) -> (1, 3)으로 자동 확장
+
+# (2, 3) + (1, 3) => 각 행마다 bias가 더해짐
+result = data + bias 
+```
+
+### 3️⃣ 집계 함수와 축 (Aggregation & Axis)
+데이터를 압축(Reduction)할 때 사용. 방향 헷갈림 주의!
+
+```python
+arr = np.array([[1, 2, 3], 
+                [4, 5, 6]]) # (2, 3)
+
+# axis=None (기본값): 전체 합
+print(arr.sum()) # 21
+
+# axis=0 (행을 따라가며 = 세로 방향 압축) -> 열별 통계
+print(arr.sum(axis=0)) # [5, 7, 9] -> 결과 shape: (3,)
+
+# axis=1 (열을 따라가며 = 가로 방향 압축) -> 행별(샘플별) 통계
+print(arr.sum(axis=1)) # [6, 15] -> 결과 shape: (2,)
+```
+
+### 🔄 [심화] 그림으로 보는 행렬 곱의 흐름 (Shape 맞추기)
+
+딥러닝 선형 레이어(`Y = XW + b`)의 차원 변화 이해하기.
+**`3`은 중간에서 연결만 해주고 사라지는 것**이 핵심입니다!
+
+**[상황]**
+학생 **5**명이, 과목 **3**개를 쳐서, 적성 **2**개를 알아냄.
+
+$$
+\begin{bmatrix} 
+\text{학생1} \\ \text{학생2} \\ \text{학생3} \\ \text{학생4} \\ \text{학생5} 
+\end{bmatrix}
+\times
+\begin{bmatrix} \text{국어} & \text{영어} & \text{수학} \end{bmatrix}
+\quad
+\xrightarrow{\text{변환}}
+\quad
+\begin{bmatrix} \text{문과} & \text{이과} \end{bmatrix}
+$$
+
+**[행렬 크기 변화]**
+
+$$
+(\mathbf{5} \times \mathbf{3}) \quad @ \quad (\mathbf{3} \times \mathbf{2}) \quad \rightarrow \quad (\mathbf{5} \times \mathbf{2})
+$$
+
+1. 앞의 **5 (학생 수)**는 결과까지 그대로 갑니다. (학생이 5명이면 결과도 5명분이어야 하니까요)
+2. 가운데 **3 (과목 수)**은 **서로 만나서 계산되고 사라집니다.** (국/영/수 점수는 적성 점수로 변환되어 흡수됨)
+3. 뒤의 **2 (적성 종류)**가 결과의 새로운 정보가 됩니다.
+
+---
