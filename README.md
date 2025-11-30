@@ -269,3 +269,55 @@ pred = np.random.rand(5, 10)
 # 3. [:, :3]로 상위 3개 자르기
 top3_indices = np.argsort(pred, axis=1)[:, ::-1][:, :3]
 ```
+---
+
+## 5. N차원 배열 형태 변경 (Reshaping)
+
+딥러닝 모델의 입력 규격(Shape)에 맞춰 데이터를 변환하는 전처리 핵심 스킬.
+
+### 1️⃣ 형태 변경 (Reshape)
+데이터의 개수(Size)는 유지한 채 차원 구조만 변경.
+> **핵심 꿀팁 (`-1`):** 남은 차원을 자동으로 계산. 배치 사이즈가 가변적일 때 필수 사용.
+
+```python
+import numpy as np
+arr = np.arange(12)
+
+# 1. (3, 4)로 변경
+print(arr.reshape(3, 4))
+
+# 2. -1 활용 (자동 계산)
+# 전체 12개 중 행을 3으로 고정 -> 열은 자동으로 4가 됨
+print(arr.reshape(3, -1)) 
+```
+
+### 2️⃣ 차원 교환 (Transpose) - ⭐CV 데이터 처리 필수
+축(Axis)의 순서를 바꿀 때 사용. 특히 이미지 데이터 포맷 변환에 필수적임.
+* **OpenCV/Matplotlib:** `(H, W, C)` (높이, 너비, 채널)
+* **PyTorch:** `(C, H, W)` (채널, 높이, 너비)
+
+```python
+# (Height, Width, Channel) -> (Channel, Height, Width)
+# 0번축, 1번축, 2번축 -> 2번, 0번, 1번 순서로 재배치
+img_pytorch = img.transpose(2, 0, 1)
+```
+
+### 3️⃣ 차원 추가 및 제거 (Expand_dims & Squeeze)
+모델 입력(Batch)을 위해 가짜 차원을 추가하거나 제거할 때 사용.
+
+```python
+arr = np.zeros((28, 28)) # (H, W)
+
+# 1. 차원 추가 (Batch Dimension)
+# (28, 28) -> (1, 28, 28)
+arr_expanded = np.expand_dims(arr, axis=0)
+
+# 2. 차원 제거 (불필요한 1차원 삭제)
+# (1, 28, 28) -> (28, 28)
+arr_squeezed = np.squeeze(arr_expanded)
+```
+
+### 4️⃣ 평탄화 (Flatten vs Ravel)
+다차원 배열을 1차원 벡터로 펼칠 때 사용 (CNN Feature Map -> FC Layer).
+* `flatten()`: 복사본 생성 (메모리 사용)
+* `ravel()`: 원본 참조 (메모리 절약, 빠름) -> **권장**
