@@ -321,3 +321,58 @@ arr_squeezed = np.squeeze(arr_expanded)
 다차원 배열을 1차원 벡터로 펼칠 때 사용 (CNN Feature Map -> FC Layer).
 * `flatten()`: 복사본 생성 (메모리 사용)
 * `ravel()`: 원본 참조 (메모리 절약, 빠름) -> **권장**
+---
+
+## 6. N차원 배열 병합 (Merge & Concatenate)
+
+여러 데이터를 하나로 합치거나(Merge), 데이터를 추가/삭제하는 전처리 과정.
+
+### 1️⃣ 배열 합치기 (Concatenate) - ⭐데이터셋 병합 필수
+가장 범용적으로 사용되는 병합 함수. 축(`axis`) 설정이 핵심.
+
+```python
+import numpy as np
+arr1 = np.array([[1, 2], [3, 4]]) # (2, 2)
+arr2 = np.array([[5, 6], [7, 8]]) # (2, 2)
+
+# 1. 세로로 합치기 (행 추가, vstack 대용)
+# axis=0: 위아래로 붙임 -> (4, 2)
+vert = np.concatenate([arr1, arr2], axis=0)
+
+# 2. 가로로 합치기 (열 추가, hstack 대용)
+# axis=1: 옆으로 붙임 -> (2, 4)
+hori = np.concatenate([arr1, arr2], axis=1)
+```
+
+### 2️⃣ 차원 쌓기 (Stack)
+기존 차원을 유지하면서 합치는 `concatenate`와 달리, **새로운 차원(Axis)**을 만들며 합침.
+
+```python
+# (2, 2) 두 개를 쌓아서 (2, 2, 2) 생성
+stacked = np.stack([arr1, arr2], axis=0) 
+```
+
+### 3️⃣ 원소 추가 및 삭제 (Insert, Delete)
+**주의:** NumPy 배열은 크기가 고정되어 있으므로, 원본을 변경하지 않고 **새로운 배열을 반환(Copy)**함.
+
+```python
+arr = np.arange(10)
+
+# 1. 삽입 (Insert)
+# 2번 인덱스에 99 삽입
+new_arr = np.insert(arr, 2, 99) 
+
+# 2. 삭제 (Delete)
+# 2번 인덱스 삭제
+del_arr = np.delete(arr, 2)
+
+# 3. 축을 지정한 삭제 (행/열 삭제)
+data = np.zeros((5, 5))
+# 0번 행(Row) 전체 삭제
+clean_data = np.delete(data, 0, axis=0)
+```
+
+### 4️⃣ 배열 분할 (Split)
+병합의 반대 과정. 데이터를 등분하거나 특정 지점에서 자름.
+* `np.vsplit(arr, 2)`: 수직(행)으로 2등분
+* `np.hsplit(arr, 2)`: 수평(열)으로 2등분
